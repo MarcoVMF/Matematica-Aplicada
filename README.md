@@ -6,4 +6,4 @@ Esse é um repositório que utiliza python para criar algoritmos de funções qu
 
 English Version:
 
-That is a repository that utilize python to create algorithms of functions that i learned on the discipline of Applied Mathematics.
+That is a repository that utilize python to create algorithms of functions that I learned on the discipline of Applied Mathematics.
