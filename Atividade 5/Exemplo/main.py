@@ -61,26 +61,5 @@ plt.xlabel('x')
 plt.ylabel('y')
 plt.show()
 
-ea = ext.T - y.T
-ea1 = ext.T - ye
-ea2 = ext.T - yi
-er = (ext.T - y.T)/(ext.T)
-er1 = (ext.T - ye.T)/(ext.T)
-er2 = (ext.T - yi.T)/(ext.T)
+ea =
 
-dataRungeKutta = {"X: ": x.T, "Runge-Kutta: ": y.T, "Exata: ": ext.T, "Erro L: ": ea, "Erro R: ": er}
-dataAvancada = {"X: ": x.T, "Avancada: ": ye, "Exata: ": ext.T, "Erro L: ": ea1, "Erro R: ": er1}
-dataAtrasada = {"X: ": x.T, "Atrasada: ": yi, "Exata: ": ext.T, "Erro L: ": ea2, "Erro R: ": er2}
-dataTodos = {"X: ": x.T, "Avancada: ": ye, "Runge-Kutta: ": y.T, "Atrasada: ": yi}
-
-dataFrameRunge = pd.DataFrame(dataRungeKutta)
-dataAvancada = pd.DataFrame(dataAvancada)
-dataAtrasada = pd.DataFrame(dataAtrasada)
-dataTodas = pd.DataFrame(dataTodos)
-
-print(dataFrameRunge)
-print(dataAvancada)
-print(dataAtrasada)
-print(dataTodas)
-
-tabelaRungKutta = pd.DataFrame()
