@@ -1,86 +1,307 @@
-# Matematica Aplicada Usando Conceitos de Runge-Kutta
-
-# Importando bibliotecas
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
 
-a = 0
-b = 1
-n = 10
-h = ((b-a)/n)
+def exercicioA():
+    print("Exercicio A ===============================================================================================================================================================")
 
-x = np.arange(a, b+h, h)
-ye = np.zeros(n + 1) 
-yi = np.zeros(n + 1)
-ye[0] = 0
-yi[0] = 0
+    f = lambda x: np.sin(np.exp(2 * x))
+    df = lambda x: 2 * (np.exp(2 * x)) * np.cos(np.exp(2 * x))
+    inicio = 0
+    fim = 1
+    n = 40
+    h = (fim - inicio)/n
 
-for i in range(n):
-    ye[i+1] = ye[i]+h*((1)/(1+(x[i])**2)-2*(ye[i])**2)
-    yi[i+1] = (yi[i]+(h)/(1+(x[i+1])**2))/(1+2*h*yi[i])
+    x = np.arange(inicio, fim+h, h)
+    x = x.reshape(-1, 1)
 
-## Inicializando o vetor t e y
+    difAtrasada = (f(x + h) - f(x)) / h
+    difAvancada = (f(x) - f(x - h)) / h
+    difCentrada = (f(x + h) - f(x - h)) / (2 * h)
+    solucaoAnalitica = df(x)
 
-t = np.zeros(n + 1)
-y = np.zeros(n + 1)
+    erroLocalAtrasada = np.abs(solucaoAnalitica - difAtrasada)
+    erroLocalAvancada = np.abs(solucaoAnalitica - difAvancada)
+    erroLocalCentrada = np.abs(solucaoAnalitica - difCentrada)
 
-## Metodo Runge-Kutta
+    erroRelativoAtrasada = np.abs((solucaoAnalitica - difAtrasada) / solucaoAnalitica)
+    erroRelativoAvancada = np.abs((solucaoAnalitica - difAvancada) / solucaoAnalitica)
+    erroRelativoCentrada = np.abs((solucaoAnalitica - difCentrada) / solucaoAnalitica)
 
-y[0] = 0
-t[0] = 0
+    dataAtrasada = {'Atrasada:': difAtrasada.flatten(), 'Erro Local:': erroLocalAtrasada.flatten(), 'Erro Relativo:': erroRelativoAtrasada.flatten()}
+    dataAvancada = {'Avancada:': difAvancada.flatten(), 'Erro Local:': erroLocalAvancada.flatten(), 'Erro Relativo:': erroRelativoAvancada.flatten()}
+    dataCentrada = {'Centrada:': difCentrada.flatten(), 'Erro Local:': erroLocalCentrada.flatten(), 'Erro Relativo:': erroRelativoCentrada.flatten()}
+
+    dataFrameAtrasada = pd.DataFrame(dataAtrasada)
+    dataFrameAvancada = pd.DataFrame(dataAvancada)
+    dataFrameCentrada = pd.DataFrame(dataCentrada)
+
+    print("Atrasada: ")
+    print(dataFrameAtrasada)
+    print("Avancada: ")
+    print(dataFrameAvancada)
+    print("Centrada: ")
+    print(dataFrameCentrada)
+
+    with pd.ExcelWriter('exercicioAExcel.xlsx') as writer:
+        dataFrameAtrasada.to_excel(writer, sheet_name='Diferenca Atrasada', index=False)
+        dataFrameAvancada.to_excel(writer, sheet_name='Diferenca Avancada', index=False)
+        dataFrameCentrada.to_excel(writer, sheet_name='Diferenca Centrada', index=False)
+
+    plt.plot(x, difAtrasada, 'r-o', label='Dif. Atrasada')
+    plt.plot(x, difAvancada, 'b-*', label='Dif. Avançada')
+    plt.plot(x, difCentrada, 'k--^', label='Dif. Centrada')
+    plt.plot(x, solucaoAnalitica, 'm-*', label='Solução Analítica')
+    plt.legend()
+    plt.title('Exercício A - Gráficos dos Métodos de Diferenças')
+    plt.grid()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.savefig('exercicioA.png')
+    plt.show()
 
 
+def exercicioB():
+    print("Exercicio B ===============================================================================================================================================================")
 
-for i in range(n):
-    t1 = t[i]
-    y1 = y[i]
-    k1 = (1)/(1+(t1)**2)-2*(y1)**2
-    t2 = t1+(h/2)
-    y2 = y1+(h/2)*k1
-    k2 = (1)/(1+(t2)**2)-2*(y2)**2
-    y3 = y2+(h/2)*k2
-    k3 = (1)/(1+(t2)**2)-2*(y3)**2
-    t[i+1] = t[i]+h
-    y4 = y1+h*k3
-    k4 = (1)/(1+(t[i]+h)**2)-2*(y4)**2
-    y[i+1] = y[i]+(h/6)*(k1+2*k2+2*k3+k4)
+    f = lambda x: np.sin(x) / np.log(x)
+    df = lambda x: ((np.cos(x) * np.log(x)) - (np.sin(x) / x)) / (np.log(x)**2)
 
-ext = x/(1+x**2)
+    inicio = 6
+    fim = 7
+    n = 20
+    h = (fim - inicio)/n
 
-## Plotando os graficos
+    x = np.arange(inicio, fim+h, h)
+    x = x.reshape(-1, 1)
 
-plt.plot(x, ye, 'r', label='Euler Explicito')
-plt.plot(x, yi, 'b', label='Euler Implicito')
-plt.plot(t, y, 'g', label='Runge-Kutta')
-plt.plot(x, ext, 'y', label='Solucao Exata')
-plt.legend()
-plt.title('Metodo de Aproximacao')
-plt.grid()
-plt.xlabel('x')
-plt.ylabel('y')
-plt.show()
+    difAtrasada = (f(x + h) - f(x)) / h
+    difAvancada = (f(x) - f(x - h)) / h
+    difCentrada = (f(x + h) - f(x - h)) / (2 * h)
+    solucaoAnalitica = df(x)
 
-ea = ext.T - y.T
-ea1 = ext.T - ye
-ea2 = ext.T - yi
-er = (ext.T - y.T)/(ext.T)
-er1 = (ext.T - ye.T)/(ext.T)
-er2 = (ext.T - yi.T)/(ext.T)
+    erroLocalAtrasada = np.abs(solucaoAnalitica - difAtrasada)
+    erroLocalAvancada = np.abs(solucaoAnalitica - difAvancada)
+    erroLocalCentrada = np.abs(solucaoAnalitica - difCentrada)
 
-dataRungeKutta = {"X: ": x.T, "Runge-Kutta: ": y.T, "Exata: ": ext.T, "Erro L: ": ea, "Erro R: ": er}
-dataAvancada = {"X: ": x.T, "Avancada: ": ye, "Exata: ": ext.T, "Erro L: ": ea1, "Erro R: ": er1}
-dataAtrasada = {"X: ": x.T, "Atrasada: ": yi, "Exata: ": ext.T, "Erro L: ": ea2, "Erro R: ": er2}
-dataTodos = {"X: ": x.T, "Avancada: ": ye, "Runge-Kutta: ": y.T, "Atrasada: ": yi}
+    erroRelativoAtrasada = np.abs((solucaoAnalitica - difAtrasada) / solucaoAnalitica)
+    erroRelativoAvancada = np.abs((solucaoAnalitica - difAvancada) / solucaoAnalitica)
+    erroRelativoCentrada = np.abs((solucaoAnalitica - difCentrada) / solucaoAnalitica)
 
-dataFrameRunge = pd.DataFrame(dataRungeKutta)
-dataAvancada = pd.DataFrame(dataAvancada)
-dataAtrasada = pd.DataFrame(dataAtrasada)
-dataTodas = pd.DataFrame(dataTodos)
+    dataAtrasada = {'Atrasada:': difAtrasada.flatten(), 'Erro Local:': erroLocalAtrasada.flatten(), 'Erro Relativo:': erroRelativoAtrasada.flatten()}
+    dataAvancada = {'Avancada:': difAvancada.flatten(), 'Erro Local:': erroLocalAvancada.flatten(), 'Erro Relativo:': erroRelativoAvancada.flatten()}
+    dataCentrada = {'Centrada:': difCentrada.flatten(), 'Erro Local:': erroLocalCentrada.flatten(), 'Erro Relativo:': erroRelativoCentrada.flatten()}
 
-print(dataFrameRunge)
-print(dataAvancada)
-print(dataAtrasada)
-print(dataTodas)
+    dataFrameAtrasada = pd.DataFrame(dataAtrasada)
+    dataFrameAvancada = pd.DataFrame(dataAvancada)
+    dataFrameCentrada = pd.DataFrame(dataCentrada)
 
-tabelaRungKutta = pd.DataFrame()
+    print("Atrasada: ")
+    print(dataFrameAtrasada)
+    print("Avancada: ")
+    print(dataFrameAvancada)
+    print("Centrada: ")
+    print(dataFrameCentrada)
+
+    with pd.ExcelWriter('exercicioBExcel.xlsx') as writer:
+        dataFrameAtrasada.to_excel(writer, sheet_name='Diferenca Atrasada', index=False)
+        dataFrameAvancada.to_excel(writer, sheet_name='Diferenca Avancada', index=False)
+        dataFrameCentrada.to_excel(writer, sheet_name='Diferenca Centrada', index=False)
+
+
+    plt.plot(x, difAtrasada, 'r-o', label='Dif. Atrasada')
+    plt.plot(x, difAvancada, 'b-*', label='Dif. Avançada')
+    plt.plot(x, difCentrada, 'k--^', label='Dif. Centrada')
+    plt.plot(x, solucaoAnalitica, 'm-*', label='Solução Analítica')
+    plt.legend()
+    plt.title('Exercício B - Gráficos dos Métodos de Diferenças')
+    plt.grid()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.savefig('exercicioB.png')
+    plt.show()
+
+
+def exercicioC():
+    print("Exercicio C ===============================================================================================================================================================")
+
+    f = lambda x: np.log(x) * np.sin(x)
+    df = lambda x: (np.sin(x) / x) + (np.log(x) * np.cos(x))
+    inicio = 0.5
+    fim = 1.5
+    n = 20
+    h = (fim - inicio)/n
+
+    x = np.arange(inicio, fim+h, h)
+    x = x.reshape(-1, 1)
+
+    difAtrasada = (f(x + h) - f(x)) / h
+    difAvancada = (f(x) - f(x - h)) / h
+    difCentrada = (f(x + h) - f(x - h)) / (2 * h)
+    solucaoAnalitica = df(x)
+
+    erroLocalAtrasada = np.abs(solucaoAnalitica - difAtrasada)
+    erroLocalAvancada = np.abs(solucaoAnalitica - difAvancada)
+    erroLocalCentrada = np.abs(solucaoAnalitica - difCentrada)
+
+    erroRelativoAtrasada = np.abs((solucaoAnalitica - difAtrasada) / solucaoAnalitica)
+    erroRelativoAvancada = np.abs((solucaoAnalitica - difAvancada) / solucaoAnalitica)
+    erroRelativoCentrada = np.abs((solucaoAnalitica - difCentrada) / solucaoAnalitica)
+
+    dataAtrasada = {'Atrasada:': difAtrasada.flatten(), 'Erro Local:': erroLocalAtrasada.flatten(), 'Erro Relativo:': erroRelativoAtrasada.flatten()}
+    dataAvancada = {'Avancada:': difAvancada.flatten(), 'Erro Local:': erroLocalAvancada.flatten(), 'Erro Relativo:': erroRelativoAvancada.flatten()}
+    dataCentrada = {'Centrada:': difCentrada.flatten(), 'Erro Local:': erroLocalCentrada.flatten(), 'Erro Relativo:': erroRelativoCentrada.flatten()}
+
+    dataFrameAtrasada = pd.DataFrame(dataAtrasada)
+    dataFrameAvancada = pd.DataFrame(dataAvancada)
+    dataFrameCentrada = pd.DataFrame(dataCentrada)
+
+    print("Atrasada: ")
+    print(dataFrameAtrasada)
+    print("Avancada: ")
+    print(dataFrameAvancada)
+    print("Centrada: ")
+    print(dataFrameCentrada)
+
+    with pd.ExcelWriter('exercicioCExcel.xlsx') as writer:
+        dataFrameAtrasada.to_excel(writer, sheet_name='Diferenca Atrasada', index=False)
+        dataFrameAvancada.to_excel(writer, sheet_name='Diferenca Avancada', index=False)
+        dataFrameCentrada.to_excel(writer, sheet_name='Diferenca Centrada', index=False)
+
+
+    plt.plot(x, difAtrasada, 'r-o', label='Dif. Atrasada')
+    plt.plot(x, difAvancada, 'b-*', label='Dif. Avançada')
+    plt.plot(x, difCentrada, 'k--^', label='Dif. Centrada')
+    plt.plot(x, solucaoAnalitica, 'm-*', label='Solução Analítica')
+    plt.legend()
+    plt.title('Exercício C - Gráficos dos Métodos de Diferenças')
+    plt.grid()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.savefig('exercicioC.png')
+    plt.show()
+
+def exercicioD():
+    print("Exercicio D ===============================================================================================================================================================")
+
+    f = lambda x: np.exp(np.sin(x))
+    df = lambda x: np.cos(x) * np.exp(np.sin(x))
+    inicio = 0.5
+    fim = 1.5
+    n = 20
+    h = (fim - inicio)/n
+
+    x = np.arange(inicio, fim+h, h)
+    x = x.reshape(-1, 1)
+
+    difAtrasada = (f(x + h) - f(x)) / h
+    difAvancada = (f(x) - f(x - h)) / h
+    difCentrada = (f(x + h) - f(x - h)) / (2 * h)
+    solucaoAnalitica = df(x)
+
+    erroLocalAtrasada = np.abs(solucaoAnalitica - difAtrasada)
+    erroLocalAvancada = np.abs(solucaoAnalitica - difAvancada)
+    erroLocalCentrada = np.abs(solucaoAnalitica - difCentrada)
+
+    erroRelativoAtrasada = np.abs((solucaoAnalitica - difAtrasada) / solucaoAnalitica)
+    erroRelativoAvancada = np.abs((solucaoAnalitica - difAvancada) / solucaoAnalitica)
+    erroRelativoCentrada = np.abs((solucaoAnalitica - difCentrada) / solucaoAnalitica)
+
+    dataAtrasada = {'Atrasada:': difAtrasada.flatten(), 'Erro Local:': erroLocalAtrasada.flatten(), 'Erro Relativo:': erroRelativoAtrasada.flatten()}
+    dataAvancada = {'Avancada:': difAvancada.flatten(), 'Erro Local:': erroLocalAvancada.flatten(), 'Erro Relativo:': erroRelativoAvancada.flatten()}
+    dataCentrada = {'Centrada:': difCentrada.flatten(), 'Erro Local:': erroLocalCentrada.flatten(), 'Erro Relativo:': erroRelativoCentrada.flatten()}
+
+    dataFrameAtrasada = pd.DataFrame(dataAtrasada)
+    dataFrameAvancada = pd.DataFrame(dataAvancada)
+    dataFrameCentrada = pd.DataFrame(dataCentrada)
+
+    print("Atrasada: ")
+    print(dataFrameAtrasada)
+    print("Avancada: ")
+    print(dataFrameAvancada)
+    print("Centrada: ")
+    print(dataFrameCentrada)
+
+    with pd.ExcelWriter('exercicioDExcel.xlsx') as writer:
+        dataFrameAtrasada.to_excel(writer, sheet_name='Diferenca Atrasada', index=False)
+        dataFrameAvancada.to_excel(writer, sheet_name='Diferenca Avancada', index=False)
+        dataFrameCentrada.to_excel(writer, sheet_name='Diferenca Centrada', index=False)
+
+
+    plt.plot(x, difAtrasada, 'r-o', label='Dif. Atrasada')
+    plt.plot(x, difAvancada, 'b-*', label='Dif. Avançada')
+    plt.plot(x, difCentrada, 'k--^', label='Dif. Centrada')
+    plt.plot(x, solucaoAnalitica, 'm-*', label='Solução Analítica')
+    plt.legend()
+    plt.title('Exercício D - Gráficos dos Métodos de Diferenças')
+    plt.grid()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.savefig('exercicioD.png')
+    plt.show()
+
+def exercicioE():
+    print("Exercicio E ===============================================================================================================================================================")
+
+    f = lambda x: 5 * (x**4) + 4 * (x**3) + 3 * (x**2) + 2 * x
+    df = lambda x: 20*(x**3) + 12*(x**2) + 6*x + 2
+    inicio = 0
+    fim = 1
+    n = 20
+    h = (fim - inicio)/n
+
+    x = np.arange(inicio, fim+h, h)
+    x = x.reshape(-1, 1)
+
+    difAtrasada = (f(x + h) - f(x)) / h
+    difAvancada = (f(x) - f(x - h)) / h
+    difCentrada = (f(x + h) - f(x - h)) / (2 * h)
+    solucaoAnalitica = df(x)
+
+    erroLocalAtrasada = np.abs(solucaoAnalitica - difAtrasada)
+    erroLocalAvancada = np.abs(solucaoAnalitica - difAvancada)
+    erroLocalCentrada = np.abs(solucaoAnalitica - difCentrada)
+
+    erroRelativoAtrasada = np.abs((solucaoAnalitica - difAtrasada) / solucaoAnalitica)
+    erroRelativoAvancada = np.abs((solucaoAnalitica - difAvancada) / solucaoAnalitica)
+    erroRelativoCentrada = np.abs((solucaoAnalitica - difCentrada) / solucaoAnalitica)
+
+    dataAtrasada = {'Atrasada:': difAtrasada.flatten(), 'Erro Local:': erroLocalAtrasada.flatten(), 'Erro Relativo:': erroRelativoAtrasada.flatten()}
+    dataAvancada = {'Avancada:': difAvancada.flatten(), 'Erro Local:': erroLocalAvancada.flatten(), 'Erro Relativo:': erroRelativoAvancada.flatten()}
+    dataCentrada = {'Centrada:': difCentrada.flatten(), 'Erro Local:': erroLocalCentrada.flatten(), 'Erro Relativo:': erroRelativoCentrada.flatten()}
+
+    dataFrameAtrasada = pd.DataFrame(dataAtrasada)
+    dataFrameAvancada = pd.DataFrame(dataAvancada)
+    dataFrameCentrada = pd.DataFrame(dataCentrada)
+
+    print("Atrasada: ")
+    print(dataFrameAtrasada)
+    print("Avancada: ")
+    print(dataFrameAvancada)
+    print("Centrada: ")
+    print(dataFrameCentrada)
+
+    with pd.ExcelWriter('exercicioEExcel.xlsx') as writer:
+        dataFrameAtrasada.to_excel(writer, sheet_name='Diferenca Atrasada', index=False)
+        dataFrameAvancada.to_excel(writer, sheet_name='Diferenca Avancada', index=False)
+        dataFrameCentrada.to_excel(writer, sheet_name='Diferenca Centrada', index=False)
+
+
+    plt.plot(x, difAtrasada, 'r-o', label='Dif. Atrasada')
+    plt.plot(x, difAvancada, 'b-*', label='Dif. Avançada')
+    plt.plot(x, difCentrada, 'k--^', label='Dif. Centrada')
+    plt.plot(x, solucaoAnalitica, 'm-*', label='Solução Analítica')
+    plt.legend()
+    plt.title('Exercício E - Gráficos dos Métodos de Diferenças')
+    plt.grid()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.savefig('exercicioE.png')
+    plt.show()
+
+
+exercicioA()
+exercicioB()
+exercicioC()
+exercicioD()
+exercicioE()

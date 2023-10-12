@@ -40,3 +40,8 @@ print(dataFrameAtrasada)
 
 print("Centrada:")
 print(dataFrameCentrada)
+
+with pd.ExcelWriter('exercicio1.xlsx') as writer:
+    dataFrameAvancada.to_excel(writer, sheet_name='Diferenca Atrasada', index=False)
+    dataFrameAtrasada.to_excel(writer, sheet_name='Diferenca Avancada', index=False)
+    dataFrameCentrada.to_excel(writer, sheet_name='Diferenca Centrada', index=False)
